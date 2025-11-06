@@ -7,4 +7,4 @@ ENV PATH /app/node_modules/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bi
 ENV HOST 0.0.0.0
 EXPOSE 3000
 ENTRYPOINT []
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
