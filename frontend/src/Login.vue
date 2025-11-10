@@ -1,7 +1,7 @@
 <template>
     <div>
         <h2>Login</h2>
-        <form @submit.prevent="login">
+        <form @submit.prevent="login"></form>
             <div>
                 <label for="username">Username:</label>
                 <input id="username" v-model="auth.username" type="text" required />
@@ -12,3 +12,12 @@
             </div>
             <button type="submit">Login</button>
     </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+const auth = ref({
+    username: '',
+    password: ''
+})
+</script>
