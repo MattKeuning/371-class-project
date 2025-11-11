@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from './Home.vue'
 import ProfileEdit from './ProfileEdit.vue'
+import Login from './Login.vue'
 
 const routes = [
-  { path: '/', component: Home },
+  { path: '/', redirect: '/auth' },
+  { path: '/auth', component: Login },
   { path: '/profile/edit', component: ProfileEdit }
 ]
 
