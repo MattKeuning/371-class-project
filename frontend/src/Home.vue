@@ -7,6 +7,7 @@ const exerciseName = ref("");
 const sets = ref("");
 const reps = ref("");
 const weight = ref("");
+const unit = ref("Reps");
 
 const currentWorkout = ref(null);
 
@@ -32,7 +33,8 @@ function addExercise() {
     id: Date.now(),
     name: exerciseName.value,
     sets: sets.value,
-    reps: reps.value,
+    amount: reps.value,
+    unit: unit.value,
     weight: weight.value
   });
 
@@ -40,6 +42,7 @@ function addExercise() {
   sets.value = "";
   reps.value = "";
   weight.value = "";
+  unit.value = "Reps";
 }
 
 function toggleWorkout(workout) {
@@ -61,7 +64,13 @@ function renameWorkout(workout, event) {
       <div class="inputs">
         <input v-model="exerciseName" placeholder="Exercise Name" />
         <input v-model="sets" placeholder="Sets" type="number" />
-        <input v-model="reps" placeholder="Reps" type="number" />
+        <div class="rep-time-input">
+          <input v-model="reps" placeholder="Amount" type="number" />
+          <select v-model="unit" class="input-select">
+            <option value="Reps">Reps</option>
+            <option value="seconds">Seconds</option>
+          </select>
+        </div>
         <input v-model="weight" placeholder="Weight (lbs)" type="number" />
       </div>
 
@@ -93,8 +102,11 @@ function renameWorkout(workout, event) {
             :key="exercise.id"
             class="exercise"
           >
-            <strong>{{ exercise.name }}</strong> — 
-            {{ exercise.sets }} × {{ exercise.reps }} @ {{ exercise.weight }} lbs
+            <strong>{{ exercise.name }}</strong> —
+            {{ exercise.sets }} × {{ exercise.amount }} {{ exercise.unit }}
+            <span v-if="exercise.weight"> @ {{ exercise.weight }} lbs</span>
+
+
           </div>
         </div>
       </div>
@@ -129,6 +141,19 @@ input {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+select {
+  padding: 8px;
+  flex: 1;
+  min-width: 130px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: white;
+  appearance: none;
+  color: #a3a3aa;
+
+}
+
 
 .btn {
   margin-top: 10px;
@@ -190,4 +215,15 @@ input {
   font-size: 18px;
   padding-left: 10px;
 }
+
+.rep-time-input {
+  display: flex;
+  gap: 10px;  
+  flex: 1;
+}
+
+
 </style>
+
+
+
