@@ -12,3 +12,13 @@ services:
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./frontend
+          target: /frontend/src
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./frontend/package.json
+
