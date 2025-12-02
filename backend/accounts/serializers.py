@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from .models import UserProfile
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(source='user.email', read_only=True)
+    email = serializers.EmailField(source='user.email')
     username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
@@ -17,9 +17,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         instance.save()
 
         # Update User email if provided
-        user_data = validated_data.get('user', {})
-        if 'email' in user_data:
-            instance.user.email = user_data['email']
+        if 'email' in validated_data:
+            instance.user.email = validated_data['email']
             instance.user.save()
 
         return instance

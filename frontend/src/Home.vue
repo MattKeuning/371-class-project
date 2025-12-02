@@ -1,5 +1,6 @@
 <script setup>
-import { ref, nextTick, computed } from "vue";
+import { ref, nextTick, computed, onMounted } from "vue";
+import axios from './utils/axios.js';
 
 
 const workouts = ref([]);
@@ -150,21 +151,58 @@ function deleteExercise(index) {
   currentWorkout.value.exercises.splice(index, 1);
 }
 
-function finishWorkout() {
+async function finishWorkout() {
   if (!currentWorkout.value) return;
 
-  const finished = {
-    id: Date.now(),
-    name: currentWorkout.value.name,
-    date: new Date().toLocaleDateString(),
-    exercises: JSON.parse(JSON.stringify(currentWorkout.value.exercises))
-  };
+  console.log('Finishing workout:', currentWorkout.value);
 
-  completedWorkouts.value.unshift(finished);
+  const exercisesData = currentWorkout.value.exercises.map(ex => ({
+    name: ex.name,
+    sets: parseInt(ex.sets),
+    amount: parseInt(ex.amount),
+    unit: ex.unit,
+    weight: ex.weight ? parseFloat(ex.weight) : null
+  }));
 
-  currentWorkout.value = null;
+  console.log('Exercises data:', exercisesData);
 
-  alert("Workout completed and added to history!");
+  if (exercisesData.some(ex => !ex.name || isNaN(ex.sets) || isNaN(ex.amount))) {
+    alert('Some exercises have invalid data. Please check sets and amount.');
+    return;
+  }
+
+  try {
+    const response = await axios.post('/api/exercises/workouts/', {
+      name: currentWorkout.value.name,
+      exercises: exercisesData
+    });
+
+    console.log('Response:', response.data);
+
+    const finished = {
+      id: response.data.id,
+      name: response.data.name,
+      date: new Date(response.data.date).toLocaleDateString(),
+      exercises: response.data.exercises.map(ex => ({
+        id: ex.id,
+        name: ex.name,
+        sets: ex.sets,
+        amount: ex.amount,
+        unit: ex.unit,
+        weight: ex.weight,
+        completed: true
+      }))
+    };
+
+    completedWorkouts.value.unshift(finished);
+
+    currentWorkout.value = null;
+
+    alert("Workout completed and added to history!");
+  } catch (error) {
+    console.error('Failed to save workout:', error);
+    alert('Failed to save workout. Please try again.');
+  }
 }
 
 
@@ -226,6 +264,37 @@ function templatesAreEqual(a, b) {
 
   return true;
 }
+
+ async function loadCompletedWorkouts() {
+  try {
+    const response = await axios.get('/api/exercises/workouts/');
+    completedWorkouts.value = response.data.map(workout => ({
+      id: workout.id,
+      name: workout.name,
+      date: new Date(workout.date).toLocaleDateString(),
+      exercises: workout.exercises.map(ex => ({
+        id: ex.id,
+        name: ex.name,
+        sets: ex.sets,
+        amount: ex.amount,
+        unit: ex.unit,
+        weight: ex.weight,
+        completed: true // since it's completed
+      }))
+    }));
+  } catch (error) {
+    console.error('Failed to load completed workouts:', error);
+  }
+}
+
+function toggleHistory() {
+  showHistory.value = !showHistory.value;
+  if (showHistory.value) {
+    loadCompletedWorkouts();
+  }
+}
+
+onMounted(loadCompletedWorkouts);
 
 </script>
 
@@ -331,13 +400,13 @@ function templatesAreEqual(a, b) {
 
 
 
-    <button
-  class="btn"
-    style="margin-top: 50px;"
-    @click="showHistory = !showHistory"
-    >
-    {{ showHistory ? "Hide Workout History" : "Show Workout History" }}
-    </button>
+     <button
+   class="btn"
+     style="margin-top: 50px;"
+     @click="toggleHistory"
+     >
+     {{ showHistory ? "Hide Workout History" : "Show Workout History" }}
+     </button>
 
 
 

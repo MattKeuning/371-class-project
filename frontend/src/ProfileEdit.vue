@@ -5,20 +5,20 @@
     <div v-if="error" class="error-message">{{ error }}</div>
 
     <form @submit.prevent="saveProfile" class="profile-form">
-      <div class="form-group">
-        <label for="name">Name:</label>
-        <input id="name" v-model="profile.name" type="text" required />
-      </div>
+       <div class="form-group">
+         <label for="name">Name:</label>
+         <input id="name" v-model="profile.name" type="text" />
+       </div>
 
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <input id="email" v-model="profile.email" type="email" required />
-      </div>
+       <div class="form-group">
+         <label for="email">Email:</label>
+         <input id="email" v-model="profile.email" type="email" readonly />
+       </div>
 
-      <div class="form-group">
-        <label for="age">Age:</label>
-        <input id="age" v-model.number="profile.age" type="number" required />
-      </div>
+       <div class="form-group">
+         <label for="age">Age:</label>
+         <input id="age" v-model.number="profile.age" type="number" />
+       </div>
 
       <button type="submit" :disabled="loading" class="save-btn">
         {{ loading ? 'Saving...' : 'Save' }}
@@ -28,13 +28,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useAuthStore } from './stores/auth.js'
 import axios from './utils/axios.js'
 
 const authStore = useAuthStore()
 
-const profile = ref({
+const profile = reactive({
   name: '',
   email: '',
   age: null
@@ -48,8 +48,10 @@ const loadProfile = async () => {
   error.value = ''
 
   try {
-    const response = await axios.get('/api/profiles/me')
-    profile.value = response.data
+    const response = await axios.get('/api/auth/profiles/me/')
+    profile.name = response.data.name || ''
+    profile.email = response.data.email || ''
+    profile.age = response.data.age || null
   } catch (error) {
     console.error('Error loading profile:', error)
     if (error.response?.status === 401) {
@@ -58,8 +60,10 @@ const loadProfile = async () => {
       if (refreshResult.success) {
         // Retry the request
         try {
-          const response = await axios.get('/api/profiles/me')
-          profile.value = response.data
+          const response = await axios.get('/api/auth/profiles/me/')
+          profile.name = response.data.name || ''
+          profile.email = response.data.email || ''
+          profile.age = response.data.age || null
         } catch (retryError) {
           error.value = 'Failed to load profile'
         }
@@ -79,8 +83,9 @@ const saveProfile = async () => {
   error.value = ''
 
   try {
-    const response = await axios.put('/api/profiles/me', profile.value)
+    const response = await axios.put('/api/auth/profiles/me/', profile)
     alert('Profile updated successfully')
+    await loadProfile() // Refresh the profile data
   } catch (error) {
     console.error('Error saving profile:', error)
     if (error.response?.status === 401) {
@@ -88,8 +93,9 @@ const saveProfile = async () => {
       if (refreshResult.success) {
         // Retry the request
         try {
-          await axios.put('/api/profiles/me', profile.value)
+          await axios.put('/api/auth/profiles/me/', profile)
           alert('Profile updated successfully')
+          await loadProfile() // Refresh the profile data
         } catch (retryError) {
           error.value = 'Failed to update profile'
         }
