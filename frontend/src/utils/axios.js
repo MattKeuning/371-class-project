@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useAuthStore } from '../stores/auth.js'
 
 // Configure axios defaults
-// Note: baseURL is not set because Vite proxy handles routing to backend
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 // Request interceptor to add auth header
 axios.interceptors.request.use(
