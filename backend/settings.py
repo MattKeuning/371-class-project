@@ -152,3 +152,6 @@ SIMPLE_JWT = {
 
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True  # For development; restrict in production
+
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS = ['https://backend-production-8306.up.railway.app']
