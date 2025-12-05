@@ -5,8 +5,8 @@ import axios from './utils/axios.js';
 import App from './App.vue';
 import router from './router.js';
 
-// Set axios baseURL at runtime for production
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+// Set axios baseURL for production
+axios.defaults.baseURL = 'https://backend-production-8306.up.railway.app';
 
 const app = createApp(App);
 const pinia = createPinia();
