@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Exercise, Workout, WorkoutExercise
+from .models import Exercise, Workout, WorkoutExercise, Vote
 
 class ExerciseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,3 +26,9 @@ class WorkoutSerializer(serializers.ModelSerializer):
         for exercise_data in exercises_data:
             WorkoutExercise.objects.create(workout=workout, **exercise_data)
         return workout
+
+class VoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vote
+        fields = ['preference']
+        read_only_fields = ['user', 'created_at']

@@ -18,6 +18,7 @@ const templateName = ref("");
 const editingIndex = ref(null);
 
 const showHistory = ref(false);
+const voteStats = ref({ cardio: 0, lifting: 0 });
 
 const allChecked = computed(() => {
   if (!currentWorkout.value) return false;
@@ -294,7 +295,30 @@ function toggleHistory() {
   }
 }
 
-onMounted(loadCompletedWorkouts);
+async function loadVoteStats() {
+  try {
+    const response = await axios.get('/api/exercises/votes/stats/');
+    voteStats.value = response.data;
+  } catch (error) {
+    console.error('Failed to load vote stats:', error);
+  }
+}
+
+async function vote(preference) {
+  try {
+    await axios.post('/api/exercises/votes/', { preference });
+    await loadVoteStats();
+    alert(`Voted for ${preference}!`);
+  } catch (error) {
+    console.error('Failed to vote:', error);
+    alert('Failed to vote. You may have already voted.');
+  }
+}
+
+onMounted(() => {
+  loadCompletedWorkouts();
+  loadVoteStats();
+});
 
 </script>
 
@@ -450,7 +474,14 @@ onMounted(loadCompletedWorkouts);
   No workout history yet.
 </p>
 
-
+<section class="voting-section">
+  <h2>Vote: Cardio or Lifting?</h2>
+  <p>Cardio: {{ voteStats.cardio }}% | Lifting: {{ voteStats.lifting }}%</p>
+  <div class="vote-buttons">
+    <button @click="vote('cardio')" class="btn">Vote Cardio</button>
+    <button @click="vote('lifting')" class="btn">Vote Lifting</button>
+  </div>
+</section>
 
   </div>
 </template>
@@ -703,6 +734,25 @@ select {
 
 .btn-inline.delete-btn:hover {
   background: #c33;
+}
+
+.voting-section {
+  margin-top: 40px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.voting-section h2 {
+  margin-bottom: 10px;
+}
+
+.vote-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 15px;
 }
 
 </style>

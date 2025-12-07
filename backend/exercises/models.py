@@ -28,3 +28,16 @@ class WorkoutExercise(models.Model):
 
     def __str__(self):
         return f"{self.name} in {self.workout.name}"
+
+class Vote(models.Model):
+    PREFERENCES = [
+        ('cardio', 'Cardio'),
+        ('lifting', 'Lifting'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    preference = models.CharField(max_length=10, choices=PREFERENCES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} votes for {self.preference}"
